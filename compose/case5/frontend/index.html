@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Guestbook Sederhana</title>
+    <style>
+        body { font-family: sans-serif; container: content; max-width: 600px; margin: auto; padding: 20px; }
+        .message { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input, textarea { padding: 8px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Buku Tamu</h1>
+    <form id="messageForm">
+        <input type="text" id="name" placeholder="Nama Anda" required>
+        <textarea id="message" placeholder="Pesan Anda" required></textarea>
+        <button type="submit">Kirim</button>
+    </form>
+    <hr>
+    <h2>Pesan-Pesan:</h2>
+    <div id="messagesContainer"></div>
+
+    <script>
+        const form = document.getElementById('messageForm');
+        const messagesContainer = document.getElementById('messagesContainer');
+
+        async function fetchMessages() {
+            const response = await fetch('/api/messages'); 
+            const messages = await response.json();
+            
+            messagesContainer.innerHTML = ''; 
+            messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.innerHTML = `<b>${msg.name}</b> (${new Date(msg.created_at).toLocaleString()})<p>${msg.message}</p>`;
+                messagesContainer.appendChild(msgDiv);
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+
+            await fetch('/api/messages', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, message })
+            });
+
+            form.reset();
+            fetchMessages(); 
+        });
+
+        fetchMessages();
+    </script>
+</body>
+</html>
