@@ -13,17 +13,29 @@ services:
         - ./dbdata:/var/lib/mysql
       networks:
         - app-network
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+        interval: 5s
+        timeout: 5s
+        retries: 10
 
   redis:
     image: redis:6.2-alpine
     restart: unless-stopped
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   wordpress:
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     image: wordpress:5.1.1-fpm-alpine
     restart: unless-stopped
     env_file: .env
