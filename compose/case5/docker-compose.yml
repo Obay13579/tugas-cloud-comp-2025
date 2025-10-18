@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_DATABASE: $WORDPRESS_DB
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    volumes: 
+      - ./dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  wordpress:
+    depends_on:
+      - db
+      - redis
+    image: wordpress:5.1.1-fpm-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: $MYSQL_ROOT_PASSWORD
+      WORDPRESS_DB_NAME: $WORDPRESS_DB
+      WORDPRESS_REDIS_HOST: redis
+    volumes:
+      - ./wp_vol:/var/www/html
+    networks:
+      - app-network
+
+  nginx_proxy:
+    # Menggunakan konsep build dari Case 4
+    build:
+      context: ./nginx 
+    depends_on:
+      - wordpress
+    restart: unless-stopped
+    ports:
+      # Hanya Nginx yang bisa diakses dari luar
+      - "80:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
