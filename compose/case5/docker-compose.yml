@@ -2,16 +2,17 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8.0
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      MYSQL_DATABASE: $WORDPRESS_DB
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-    volumes: 
-      - ./dbdata:/var/lib/mysql
-    networks:
-      - app-network
+      image: mysql:8.0
+      restart: unless-stopped
+      env_file: .env
+      environment:
+        MYSQL_DATABASE: $WORDPRESS_DB
+        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      command: '--default-authentication-plugin=mysql_native_password'
+      volumes: 
+        - ./dbdata:/var/lib/mysql
+      networks:
+        - app-network
 
   redis:
     image: redis:6.2-alpine
