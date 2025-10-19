@@ -65,28 +65,48 @@ app.post('/tasks', async (req, res) => {
 app.patch('/tasks/:id', async (req, res) => {
   const { id } = req.params;
   const { completed } = req.body;
+  
+  console.log(`Received PATCH request for task ${id}:`, req.body);
+
+  if (completed === undefined) {
+    return res.status(400).json({ error: 'completed field is required' });
+  }
 
   try {
-    await connection.execute(
+    const [result] = await connection.execute(
       'UPDATE tasks SET completed = ? WHERE id = ?',
-      [completed, id]
+      [completed ? 1 : 0, id] 
     );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    console.log(`Task ${id} updated successfully`);
     res.status(200).json({ message: 'Task updated successfully' });
   } catch (error) {
     console.error('Error updating task:', error);
-    res.status(500).json({ error: 'Error updating task' });
+    res.status(500).json({ error: 'Error updating task', details: error.message });
   }
 });
 
 app.delete('/tasks/:id', async (req, res) => {
   const { id } = req.params;
+  
+  console.log(`Received DELETE request for task ${id}`);
 
   try {
-    await connection.execute('DELETE FROM tasks WHERE id = ?', [id]);
+    const [result] = await connection.execute('DELETE FROM tasks WHERE id = ?', [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    console.log(`Task ${id} deleted successfully`);
     res.status(200).json({ message: 'Task deleted successfully' });
   } catch (error) {
     console.error('Error deleting task:', error);
-    res.status(500).json({ error: 'Error deleting task' });
+    res.status(500).json({ error: 'Error deleting task', details: error.message });
   }
 });
 

@@ -99,35 +99,43 @@ export default {
     },
 
     async toggleComplete(id, completed) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/tasks/${id}`, {
-          method: 'PATCH',
-          headers: {
+    try {
+        const response = await fetch(`/api/tasks/${id}`, {
+        method: 'PATCH',
+        headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ completed })
+        },
+        body: JSON.stringify({ completed })
         });
         
         if (response.ok) {
-          this.fetchTasks();
+        this.fetchTasks();
+        } else {
+        console.error('Server responded with status:', response.status);
+        const errorData = await response.text();
+        console.error('Error details:', errorData);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Error updating task:', error);
-      }
+    }
     },
+
     async deleteTask(id) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/tasks/${id}`, {
-          method: 'DELETE'
+    try {
+        const response = await fetch(`/api/tasks/${id}`, {
+        method: 'DELETE'
         });
         
         if (response.ok) {
-          this.fetchTasks();
+        this.fetchTasks();
+        } else {
+        console.error('Server responded with status:', response.status);
+        const errorData = await response.text();
+        console.error('Error details:', errorData);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Error deleting task:', error);
-      }
     }
-  }
+    }
 }
 </script>
