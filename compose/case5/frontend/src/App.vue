@@ -15,6 +15,7 @@
     <div class="mt-4">
       <h3>Tasks</h3>
       <div v-if="loading">Loading tasks...</div>
+      <div v-else-if="tasks.length === 0">No tasks found. Add your first task!</div>
       <ul class="list-group">
         <li 
           v-for="task in tasks" 
@@ -59,83 +60,78 @@ export default {
   },
   methods: {
     async fetchTasks() {
-        this.loading = true;
-        try {
-        const response = await fetch('/api/tasks'); // Gunakan URL relatif
+      this.loading = true;
+      try {
+        const response = await fetch('/api/tasks');
         const data = await response.json();
         this.tasks = data;
-        } catch (error) {
+      } catch (error) {
         console.error('Error fetching tasks:', error);
-        // Tambahkan alert untuk debugging
-        alert('Failed to fetch tasks: ' + error.message);
-        } finally {
+      } finally {
         this.loading = false;
-        }
+      }
     },
     async addTask() {
-        if (!this.newTask.trim()) return;
-        
-        try {
-        const response = await fetch('/api/tasks', { 
-            method: 'POST',
-            headers: {
+      if (!this.newTask.trim()) return;
+      
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: {
             'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ title: this.newTask })
+          },
+          body: JSON.stringify({ title: this.newTask })
         });
         
         if (response.ok) {
-            this.newTask = '';
-            this.fetchTasks();
+          this.newTask = '';
+          this.fetchTasks();
         } else {
-            const errorData = await response.text();
-            console.error('Server response:', errorData);
-            alert('Failed to add task. Status: ' + response.status);
+          const errorData = await response.text();
+          console.error('Server response:', errorData);
         }
-        } catch (error) {
+      } catch (error) {
         console.error('Error adding task:', error);
-        alert('Failed to add task: ' + error.message);
-        }
+      }
     },
-
     async toggleComplete(id, completed) {
-    try {
+      try {
         const response = await fetch(`/api/tasks/${id}`, {
-        method: 'PATCH',
-        headers: {
+          method: 'PATCH',
+          headers: {
             'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ completed })
+          },
+          body: JSON.stringify({ completed })
         });
         
         if (response.ok) {
-        this.fetchTasks();
+          this.fetchTasks();
         } else {
-        console.error('Server responded with status:', response.status);
-        const errorData = await response.text();
-        console.error('Error details:', errorData);
+          console.error('Server responded with status:', response.status);
+          const errorData = await response.text();
+          console.error('Error details:', errorData);
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Error updating task:', error);
-    }
+      }
     },
-
     async deleteTask(id) {
-    try {
+      try {
         const response = await fetch(`/api/tasks/${id}`, {
-        method: 'DELETE'
+          method: 'DELETE'
         });
         
         if (response.ok) {
-        this.fetchTasks();
+          this.fetchTasks();
         } else {
-        console.error('Server responded with status:', response.status);
-        const errorData = await response.text();
-        console.error('Error details:', errorData);
+          console.error('Server responded with status:', response.status);
+          const errorData = await response.text();
+          console.error('Error details:', errorData);
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Error deleting task:', error);
+      }
     }
-    }
+  }
 }
 </script>
