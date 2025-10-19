@@ -42,8 +42,10 @@ app.get('/tasks', async (req, res) => {
 });
 
 app.post('/tasks', async (req, res) => {
+  console.log('Received POST request to /tasks', req.body);
   const { title } = req.body;
   if (!title) {
+    console.log('Title is missing in the request');
     return res.status(400).json({ error: 'Title is required' });
   }
 
@@ -52,10 +54,11 @@ app.post('/tasks', async (req, res) => {
       'INSERT INTO tasks (title) VALUES (?)',
       [title]
     );
+    console.log('Task created with ID:', result.insertId);
     res.status(201).json({ id: result.insertId, title, completed: false });
   } catch (error) {
-    console.error('Error creating task:', error);
-    res.status(500).json({ error: 'Error creating task' });
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Error creating task', details: error.message });
   }
 });
 
