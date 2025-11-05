@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t docsportal:1.0 .
+docker build -t docs-static:1.0 .

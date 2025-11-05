@@ -1,33 +1,6 @@
-FROM python:3.11-slim
-WORKDIR /app
-# Copy documentation markdown
-COPY mkdocs.yml ./
-COPY docs/ ./docs/
-RUN pip install mkdocs mkdocs-material mkdocs-pdf-export-plugin
-# Build static site
-RUN mkdocs build --site-dir site/
-# Install nginx
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y \
-    libpango-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libcairo2 \
-    libgobject-2.0-0 \
-    libffi-dev \
-    libxml2 \
-    libxslt1.1 \
-    libjpeg-dev \
-    zlib1g-dev \
-    libpng-dev \
-    libpangocairo-1.0-0 \
-    fonts-liberation \
-    && rm -rf /var/lib/apt/lists/*
-
-# Remove default and copy our config
-COPY nginx.conf /etc/nginx/sites-available/default
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY html/ ./
+# Optional: Configure Nginx default config if needed
 EXPOSE 80
-# Copy entrypoint
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-ENTRYPOINT ["/start.sh"]
+CMD ["nginx", "-g", "daemon off;"]
