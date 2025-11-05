@@ -1,6 +1,7 @@
 FROM python:3.11-slim
 WORKDIR /app
 # Copy documentation markdown
+COPY mkdocs.yml ./
 COPY docs/ ./docs/
 RUN pip install mkdocs mkdocs-material mkdocs-pdf-export-plugin
 # Build static site
