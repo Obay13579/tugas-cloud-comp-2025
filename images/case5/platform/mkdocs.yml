@@ -1,0 +1,8 @@
+site_name: Case 5 Documentation
+nav:
+  - Home: index.md
+theme:
+  name: material
+plugins:
+  - search
+  - pdf-export
