@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ../src/main.go .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o my-app .
+RUN GO111MODULE=off CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o my-app .
 
 FROM alpine:latest
 
